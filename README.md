@@ -1,525 +1,379 @@
-# *# RetailSphere - Retail Sales Data Warehouse and ETL Pipeline*
+# RetailSphere - Retail Sales Data Warehouse and ETL Pipeline
 
-# 
+## Project Overview
 
-##### **## Project Overview**
-
-
-
-RetailSphere is an end-to-end Retail Sales Data Warehouse and ETL Project developed to demonstrate practical experience with Oracle SQL
-
-Informatica PowerCenter, Unix Shell Scripting, Data Warehousing concepts, data validation, and SQL reporting.
+RetailSphere is an end-to-end Retail Sales Data Warehouse and ETL Project developed to demonstrate practical experience with Oracle SQL, Informatica PowerCenter, Unix Shell Scripting, Data Warehousing concepts, data validation, and SQL reporting.
 
 The project uses retail sales data containing customer, product, order, and item-level information.
 
-The data is extracted from source tables, transformed and validated using Informatica, and loaded into dimensional and fact tables in an Oracle data warehouse
+The data is extracted from source tables, transformed and validated using Informatica, and loaded into dimensional and fact tables in an Oracle data warehouse.
 
+## Business Objective
 
+The main objective of this project is to build a structured retail data warehouse that can help analyze:
 
+- Customer Sales
+- Product Performance
+- Regional Sales
+- Category-wise Profit
+- Monthly Sales Trends
+- Customer Order Activity
+- Top Performing Products
 
+The project also demonstrates how new and changed customer data can be handled using Slowly Changing Dimensions (SCD).
 
+## Technologies Used
 
+- Oracle Database - Source and Target Database
+- SQL Developer - Table Creation, Validation, and Reporting
+- Informatica PowerCenter - ETL Development
+- Unix Shell Scripting - File Validation and Processing
+- GitHub - Project Version Control and Documentation
+- Microsoft Excel (CSV) - Source retail database
 
-##### **## Business Objective**
+## Source Data
 
+The project uses a Superstore retail sales dataset.
 
+The source data contains information related to:
 
-The main objective of this project is build a structured retail data warehouse can help analyse:
+- Customers
+- Products
+- Orders
+- Items
 
+The source tables used in this project are:
 
+| Source Table | Description |
+|---|---|
+| Customers | Customer information |
+| Products | Product information |
+| Orders | Order-level information |
+| Items | Item-level information |
 
-Customer Sales
+## Data Warehouse Design
 
-Product Performance
+The warehouse contains dimension and fact tables.
 
-Regional Sales
+### Dimension Tables
 
-Category-wise Profit
+#### DIM_CUSTOMERS
 
-Monthy Sales Trends
+Stores customer information.
 
-Customer Order Activity
+Important columns:
 
-Top Performing Products
+- CUST_KEY
+- CUSTOMER_ID
+- CUSTOMER_NAME
+- SEGMENT
+- REGION
+- COUNTRY
+- STATE
+- POSTAL CODE
 
+`CUST_KEY` is a surrogate key used as the primary key.
 
+#### DIM_PRODUCTS
 
-The project also demonstrates how new and changed customer data can be handled using Slowly Changing Dimensions(SCD)
+Stores product information.
 
+Important columns:
 
+- PROD_KEY
+- PRODUCT_ID
+- PRODUCT_NAME
+- CATEGORY
+- SUB_CATEGORY
 
-##### **## Technologies Used**
+`PROD_KEY` is a surrogate key used as the primary key.
 
-##### 
+### Fact Tables
 
-Oracle Database - Source and Target Database
+#### FACT_ORDERS
 
-Sql Developer - Table Creation, Validation, and Reporting
+Stores order-related information.
 
-Informatica Powercenter - ETL Development
+Columns:
 
-Unix Shell Scripting - File Validation and Processing
+- ORDER_ID
+- ORDER_DATE
+- SHIP_DATE
+- SHIP_MODE
+- CUSTOMER_ID
 
-GitHub - Project Version Control and Documentation
+#### FACT_ITEMS
 
-Microsoft Excel(CSV) - Source retail database
+Stores item-level sales transactions.
 
+Columns:
 
+- ORDER_ID
+- PRODUCT_ID
+- SALES
+- QUANTITY
+- DISCOUNT
+- PROFIT
 
+## ETL Architecture
 
-
-##### **## Source Data**
-
-
-
-The project uses a Superstore retail sales dataset
-
-The Source data contains information related to
-
-Customers
-
-Products
-
-Orders
-
-Items
-
-
-
-
-
-The source tables used in this project are :
-**Source Table 			Description**
-
-Customers			Customer Information
-
-Products			Product Information
-
-Orders				Order level Information
-
-Items 				Item level Information
-
-
-
-
-
-##### **## Data Warehouse Design**
-
-The warehouse contains dimension and fact tables
-
-
-
-###### **### Dimension Table**
-
-
-
-**#### DIM\_CUSTOMERS** : Stores Customer Information
-
-Important columns :
-
-* CUST\_KEY
-* CUSTOMER\_ID
-* CUSTOMER\_NAME
-* SEGMENT
-* REGION
-* COUNTRY
-* STATE
-* POSTAL CODE
-
-"CUST\_KEY" is a surrogate key used as the primary key.
-
-
-
-**#### DIM\_PRODUCTS** : Stores Product Information
-
-Important Columns :
-
-* PROD\_KEY
-* PRODUCT\_ID
-* PRODUCT\_NAME
-* CATEGORY
-* SUB\_CATEGORY
-
-"PROD\_KEY"  is a surrogate key used as the primary key.
-
-
-
-###### **### Fact Table**
-
-
-
-**#### FACT\_ORDERS** : Stores Order Related Information
-
-Columns :
-
-* ORDER\_ID
-* ORDER\_DATE
-* SHIP\_DATE
-* SHIP\_MODE
-* CUSTOMER\_ID
-
-
-
-
-
-**#### FACT\_ITEMS** : Stores Item-level Sales Transactions
-
-Columns :
-
-* ORDER\_ID
-* PRODUCT\_ID
-* SALES
-* QUANTITY
-* DISCOUNT
-* PROFIT
-
-##### 
-
-##### **## ETL Architecture**
-
-The overall ETL process is :
-
-
+The overall ETL process is:
 
 Source Data
 
-|
+↓
 
 Unix File Validation
 
-|
+↓
 
 Staging
 
-|
+↓
 
-Informatica Powercenter
+Informatica PowerCenter
 
-|
+↓
 
 Oracle Data Warehouse
 
-|
+↓
 
 SQL Reporting
 
+## Customer SCD Type 1
 
+Customer data is processed using Slowly Changing Dimension Type 1.
 
+### Logic
 
+- If customer data already exists → Update
+- If customer is new → Insert
 
-##### **## Customer SCD Type 1**
+Type 1 does not maintain historical values.
 
-Customer data is processed using Slowly Changing Dimension Type 1
+### Informatica Objects
 
+Mapping: `m_LOAD_CUSTOMERS_SCD_TYPE1`
 
+Session: `s_LOAD_CUSTOMERS_SCD_TYPE1`
 
-###### **### Logic**
+## Customer SCD Type 2
 
-* If Customer data already exists -> Update
-* If Customer is new -> Insert
+Customer data is also processed using Slowly Changing Dimension Type 2 to maintain historical information.
 
-Type 1 does not maintain historical values
+### Logic
 
+When the tracked information of an existing customer changes:
 
+- Existing record is retained as historical data
+- The old version is ended
+- A new version of the customer record is inserted
 
-###### **### Informatica Objects**
+This allows the warehouse to preserve customer history.
 
-Mapping : 	m\_LOAD\_CUSTOMERS\_SCD\_TYPE1
+### Informatica Objects
 
-Session : 	s\_LOAD\_CUSTOMERS\_SCD\_TYPE1
+Mapping: `m_LOAD_CUSTOMERS_SCD_TYPE2`
 
-##### 
+Session: `s_LOAD_CUSTOMERS_SCD_TYPE2`
 
-##### **## Customer SCD Type 2**
+## Product Loading
 
-Customer data is also processed using Slowly Changing Dimension Type 2 to maintain historical information
+Products are loaded using a Lookup transformation.
 
-
-
-###### **### Logic**
-
-When an existing customer's the tracked information changes : then
-
-* Existing Record is retained as historical data
-* The old version is ended
-* A new version of the customer record is inserted
-
-This allows the warehouse to preserve customer history
-
-
-
-###### **### Informatica Objects**
-
-Mapping : 	m\_LOAD\_CUSTOMERS\_SCD\_TYPE2
-
-Session : 	s\_LOAD\_CUSTOMERS\_SCD\_TYPE2
-
-
-
-
-
-
-
-##### **## PRODUCT LOADING**
-
-Products are loaded using a Lookup transformation
-
-
-
-###### **### Logic :**
+### Logic
 
 PRODUCTS
 
-|
+↓
 
-Lookup DIM\_PRODUCTS using PRODUCT\_ID
+Lookup DIM_PRODUCTS using PRODUCT_ID
 
-|
+↓
 
-* Existing Product -> Update
-* New Product -> Insert
+- Existing Product → Update
+- New Product → Insert
 
+### Informatica Objects
 
+Mapping: `m_LOAD_PRODUCTS`
 
-###### **### Informatica Objects**
+Session: `s_LOAD_PRODUCTS`
 
-Mapping : 	m\_LOAD\_PRODUCTS
+Duplicate product records present in the source were handled so that the warehouse maintains unique product records.
 
-Session : 	s\_LOAD\_PRODUCTS
+## FULL_LOAD - FACT_ORDERS
 
+The order fact table is loaded using a full-load mapping.
 
-
-Duplicate product records present in the source were handled so that the warehouse maintains unique product records..
-
-
-
-
-
-##### **## FULL\_LOAD - FACT\_ORDERS**
-
-The order fact table is loaded using a full-load mapping
-
-
-
-###### **### Flow**
+### Flow
 
 Orders
 
-|
+↓
 
 Source Qualifier
 
-|
+↓
 
 Fact Orders
 
+### Informatica Objects
 
+Mapping: `m_LOAD_FACT_ORDERS`
 
-###### **### Informatica Objects**
+Session: `s_LOAD_FACT_ORDERS`
 
-Mapping : 	m\_LOAD\_FACT\_ORDERS
+The target contains order-level records.
 
-Session : 	s\_LOAD\_FACT\_ORDERS
+## FULL_LOAD - FACT_ITEMS
 
-The target contains order-level records
+The item fact table is loaded using a full-load mapping.
 
-
-
-##### 
-
-##### **## FULL\_LOAD - FACT\_ITEMS**
-
-The item fact table is loaded using a full-load mapping
-
-
-
-###### **### Flow**
+### Flow
 
 Items
 
-|
+↓
 
 Source Qualifier
 
-|
+↓
+
 Fact Items
 
+### Informatica Objects
 
+Mapping: `m_LOAD_FACT_ITEMS`
 
-###### **### Informatica Objects**
+Session: `s_LOAD_FACT_ITEMS`
 
-Mapping : 	m\_LOAD\_FACT\_ITEMS
+The target maintains item-level transaction information.
 
-Session : 	s\_LOAD\_FACT\_ITEMS
+## Incremental Load - Fact Orders
 
-The target maintains item-level transaction information
+An incremental mapping was created to load only new orders.
 
-
-
-##### **## Incremental Load - Fact Orders**
-
-An Incremental mapping was created to load only new orders.
-
-
-
-###### **### Flow**
+### Flow
 
 Orders
 
-|
-
-Source Qualifiers
-
-|
-
-Lookup Fact\_Orders
-
-|
-
-Filter
-
-|
-
-Fact\_Orders
-
-
-
-The Lookup checks whether the order already exists
-
-* Existing Order -> Rejected
-* New Order -> Inserted
-
-
-
-###### **### Informatica Object**
-
-Mapping : 	m\_INCREMENTAL\_LOAD\_ORDERS ........
-
-A test order was successfully inserted using the incremental process
-
-the Fact\_Order count increase from  : 5009->5010
-
-This demonstrated that the incremental process inserted the new order without reloading existing order
-
-
-
-##### **## Incremental Load - Fact\_Items**
-
-An Incremental mapping was also created for item-level data
-
-
-
-###### **### Flow**
-
-Items
-
-|
+↓
 
 Source Qualifier
 
-|
+↓
 
-Lookup Fact\_Items
+Lookup Fact_Orders
 
-|
+↓
 
 Filter
 
-|
+↓
 
-Fact\_Items
+Fact_Orders
 
+The Lookup checks whether the order already exists.
 
+- Existing Order → Rejected
+- New Order → Inserted
 
-The mapping checks whether the incoming record already exists in the target before inserting it
+### Informatica Object
 
-##### 
+Mapping: `m_INCREMENTAL_LOAD_ORDERS`
 
-##### **## ETL Workflow**
+A test order was successfully inserted using the incremental process.
 
-###### **### Full Load Workflow**
+The Fact_Order count increased from 5,009 to 5,010.
 
+This demonstrated that the incremental process inserted the new order without reloading existing orders.
 
+## Incremental Load - Fact Items
 
-Workflow : WFL\_RETAIL\_SALES\_ETL\_FLOW
+An incremental mapping was also created for item-level data.
 
+### Flow
 
+Items
 
-Sequence :
+↓
+
+Source Qualifier
+
+↓
+
+Lookup Fact_Items
+
+↓
+
+Filter
+
+↓
+
+Fact_Items
+
+The mapping checks whether the incoming record already exists in the target before inserting it.
+
+## ETL Workflow
+
+### Full Load Workflow
+
+Workflow: `WFL_RETAIL_SALES_ETL_FLOW`
+
+Sequence:
 
 START
 
-|
+↓
 
 LOAD CUSTOMER TYPE 1
 
-|
+↓
 
 LOAD CUSTOMER TYPE 2
 
-|
+↓
 
 LOAD PRODUCTS
 
-|
+↓
 
 LOAD FACT ORDERS
 
-|
+↓
 
 LOAD FACT ITEMS
 
+### Incremental Workflow
 
+Workflow: `WFL_RETAIL_SALES_ETL_INCREMENTAL_FLOW`
 
-###### 
+The workflow handles incremental fact loading separately from the full-load process.
 
-###### **### INCREMENTAL WORKFLOW**
+## UNIX SHELL SCRIPTING
 
-###### 
-
-Workflow : WFL\_RETAIL\_SALES\_ETL\_INCREMENTAL\_FLOW
-
-The workflow handles incremental fact loading separately from the full-load process
-
-##### 
-
-##### **## UNIX SHELL SCRIPTING**
-
-Unix Shell Scripting is used as a simple pre-processing step in the ETL process
-
-
+Unix Shell Scripting is used as a simple pre-processing step in the ETL process.
 
 The scripts demonstrate:
 
-* File existence Checking
-* File Copying
-* Basic File Validation
-* Record Counting
-* ETL Process Execution
+- File existence checking
+- File copying
+- Basic file validation
+- Record counting
+- ETL process execution
 
+### Scripts
 
+- `validate.sh`
+- `process.sh`
+- `ETL.sh`
 
-###### **###Scripts**
+## Data Validation
 
-validate.sh
-
-process.sh
-
-ETL.sh
-
-
-
-##### 
-
-##### **## Data Validation**
-
-* Compared source and target data counts
-* Checked important columns for NULL values
-* Verified customer and product referential integrity
-* Checked for duplicate records
-* Reconciled SALES, QUANTITY, and PROFIT totals between source and target.
-
-
-
-# \#Project Successfully Updated to GitHub Desktop
-
+- Compared source and target data counts
+- Checked important columns for NULL values
+- Verified customer and product referential integrity
+- Checked for duplicate records
+- Reconciled SALES, QUANTITY, and PROFIT totals between source and target
